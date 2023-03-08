@@ -11,10 +11,10 @@ YELLOW = (255, 255, 0)
 FPS = 50
 objects = []
 text_sprites = []
-started = False
+to_game = False
 
 def start():
-    global started
+    global to_game
     print("Start!")
     started = True
 def vvod(vopros, vari = [], *args):
@@ -25,7 +25,7 @@ def vvod(vopros, vari = [], *args):
 def mainmenu():
     global buttonstart
     global title
-    while not started:
+    while not to_game:
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
                 sys.exit()
@@ -38,7 +38,7 @@ def mainmenu():
     text_sprites.remove(title)
     del title
 def gameplay():
-    global started
+    global to_game
     while 1:
         for i in pygame.event.get():
             if i.type == pygame.QUIT:

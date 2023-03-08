@@ -1,5 +1,5 @@
 # ИМПОРТ ВСЕХ МОДУЛЕЙ
-import  pygame
+import pygame
 import sys
 import random
 import os
@@ -7,43 +7,73 @@ import os
 
 
 # ОПРЕДЕЛЕНИЕ КОНСТАНТ
-WIDTH = 1200
+WIDTH = 1000
 HEIGHT = 800
-RED =(255, 0 ,0)
+RED = (255, 0 ,0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 PURPLE = (128, 0, 128)
-BLUE = (0, 0, 255)
+BLUE = (50, 100, 215)
 GREEN = (0, 128, 0)
 YELLOW = (255, 255, 0)
 X_FIRST = 100
 Y_FIRST = 400
+VOLUME = 1
 FPS = 30
 SIMV = "_" # то как будет показываться неугаданный символ
+
+
+
+
+
+def exit_close(but=''):
+    user_data.close()
+    sys.exit()
+
 
  # ОПРЕДЕЛЕНИЕ ЗНАЧИМЫХ ПЕРЕМЕННЫХ
 def opred():
     global objects
     global text_sprites
-    global started
+    global to_game
     global win
     global gameover
     global let
     global number_of_costum
+    global to_option
+    global level
+    global user_data
+    global coins
     objects = []
     text_sprites = []
-    started = False
+    to_game = False
+    to_option = False
     win = False
     gameover = False
     let = ''
     number_of_costum = 0
-
+    level = int(user_data.readline()[0])
+    coins = int(user_data.readline())
+    user_data.seek(0)
 
 # ОПРЕДЕЛЕНИЕ ГЛОБАЛЬНЫХ ФУНКЦИЙ
 def start(text_but):
-    global started
-    print("Start!")
-    started = True
+    global to_game
+    to_game = True
+
+
+def volume(text_but=''):
+    global volume_but
+    global sprite_gr
+    global VOLUME
+    if volume_but.text == sprite_gr[0]:
+        VOLUME = 0
+        volume_but.text = sprite_gr[1]
+    else:
+        VOLUME = 1
+        volume_but.text = sprite_gr[0]
+    pygame.mixer.music.set_volume(VOLUME)
+    pygame.display.update(volume_but.rect)
 
 def resource_path(relative_path):
     try:
@@ -58,26 +88,85 @@ def final(final):
     global final_text
     global restart
     global net
-    final_text = texts(WIDTH / 2, HEIGHT / 2, "Хотите начать сначала?", (102, 102, 102), bigfont)
-    final_text2 = texts(WIDTH / 2, HEIGHT / 2 - 50, "Правильное слово - " + secret, YELLOW, bigfont)
-    restart = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.65, (102, 102, 102), "СНАЧАЛА", main)
-    net = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.75, (102, 102, 102), "НЕТ", sys.exit)
+    global level
+    global user_data
+    global coins
+    pygame.mixer.quit()
+    pygame.mixer.init()
+    pygame.mixer.music.set_volume(VOLUME)
+    restart = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.65, (102, 102, 102), "главное меню", main)
     if final == 1:
-        print("о еда")
+        final_text = texts(WIDTH / 2, HEIGHT * 0.3, f"Уровень {level} пройден! \n  \n  + {level * 462} сошиал кредитс", RED, bigfont)
+        coins += level * 462
         oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images\победа.jpg')), (WIDTH, HEIGHT))
+        pygame.mixer.music.load(resource_path(r'music\победа.mp3'))
+        level += 1
+        user_data.write(str(level))
+        user_data.write("\n")
+        user_data.write(str(coins))
+        user_data.seek(0)
     else:
         oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images\поражение.jpg')), (WIDTH, HEIGHT))
-        print('еее !')
+        pygame.mixer.music.load(resource_path(r'music\поражение2.mp3'))
+        final_text = texts(WIDTH / 2, HEIGHT * 0.3, "Правильное слово - " + secret, RED, bigfont)
+    pygame.mixer.music.play()
     while 1:
         window.blit(oboi, (0, 0))
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
-                sys.exit()
+                exit_close()
         final_text.output()
-        final_text2.output()
         restart.process('')
-        net.process('')
         pygame.display.flip()
+
+def back_to(text_but=''):
+    global to_option
+    to_option = False
+
+def go_option(text_but=''):
+    global to_option
+    to_option = True
+
+def option():
+    global bac
+    global to_option
+    global volume_but
+    volume_but = Button(50, 50, 50, HEIGHT * 0.8, (0, 0, 0, 0), "@звук", volume)
+    bac = Button(200, 50, 100, HEIGHT * 0.9, RED, "назад", back_to)
+    info = "ПРАВИЛА"
+    rulestext = r"""Помоги себе набрать социального статуса!
+    
+    Решай головоломки и получайте кредиты! 
+    
+    Каждый раз уровень будет повышаться.
+    
+    На каждый уровень дается 10 попыток."""
+    tit = texts(WIDTH / 2, HEIGHT * 0.2, info, (51, 51, 51), bigfont)
+    rules = texts(WIDTH / 2, HEIGHT * 0.65, rulestext, (120, 120, 120), pygame.font.Font(None, 50))
+    window.blit(back_ground_option, back_ground_rect)
+    pygame.display.flip()
+    while to_option:
+        window.blit(back_ground_option, (0, 0))
+        for i in pygame.event.get():
+            if i.type == pygame.QUIT:
+                exit_close()
+        for elem in objects:
+            elem.process('')
+        for ele in text_sprites:
+            ele.output()
+
+        pygame.display.flip()
+        clock.tick(FPS)
+    objects.remove(bac)
+    del bac
+    objects.remove(volume_but)
+    del volume_but
+    text_sprites.remove(rules)
+    del rules
+    text_sprites.remove(tit)
+    del tit
+    mainmenu('')
+
 def letter_press(let):
     global set_povt
     global win
@@ -85,30 +174,28 @@ def letter_press(let):
     global gameover
     global pole
     global sprite_pole
-    print(let)
     if let in secret and let not in set_povt:
-        print("Правильно!")
         for j in poisk(let):
-            print("Замена")
             pole[j] = let
         if SIMV not in pole:
-            print("ПОБЕДА")
             win = True
+        else:
+            sound2 = pygame.mixer.Sound(resource_path(r'music\угадал_букву.mp3'))
+            sound2.set_volume(VOLUME)
+            sound2.play()
 
     elif let in set_povt:
-        print("Уже было!")
         return
     else:
-        print("Неправильно!")
+        sound1 = pygame.mixer.Sound(resource_path(r'music\буква_неугадана.mp3'))
+        sound1.set_volume(VOLUME)
+        sound1.play()
         number_of_costum += 1
         if number_of_costum > 9:
             gameover = True
     set_povt.add(let)
     text_sprites.remove(sprite_pole)
     sprite_pole = texts(WIDTH * 0.65, 200, '  '.join(pole), BLACK, bigfont)
-    print(pole)
-    print(sprite_pole.text)
-    #sprite_pole.font.render(sprite_pole.text, True, sprite_pole.color)
 
 def poisk(b):
     otvet = []
@@ -117,26 +204,40 @@ def poisk(b):
             otvet.append(i)
     return otvet
 
-
-
 def mainmenu(text_but=''):
-    global back_ground_menu_rect
+    global back_ground_rect
     global back_ground_menu
+    global volume_but
+    global options
+    global buttonstart
+    global title
+    global exitt
+    pygame.mixer.music.load(music_of_main_menu)
+    pygame.mixer.music.play(-1)
     title = texts(WIDTH / 2, HEIGHT / 4, "ВИСЕЛИЦА 2Д", PURPLE, pygame.font.Font(None, 100))
-    buttonstart = Button(100, 40, WIDTH / 2 - 50, HEIGHT / 2 - 10, GREEN, "СТАРТ!", start)
-    window.blit(back_ground_menu, back_ground_menu_rect)
+    buttonstart = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.5, WHITE, "НАЧАТЬ", start)
+    options = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.6, BLUE, "ПРАВИЛА", go_option)
+    exitt = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.7, RED, "ВЫХОД", exit_close)
+    volume_but =  Button(50, 50, 50, HEIGHT * 0.8, (0,0,0,0), "@звук", volume)
+    credit = texts(WIDTH * 0.85, 50, f"{coins} сошиал кредиц", RED, pygame.font.Font(resource_path(r'fonts\arial.ttf'), 30))
+    yrov = texts(WIDTH / 2, HEIGHT * 0.49, f"{level} уровень", BLACK, font)
+    window.blit(back_ground_menu, back_ground_rect)
     pygame.display.flip()
-    while not started:
+    while not to_game and not to_option:
         window.blit(back_ground_menu, (0, 0))
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
-                sys.exit()
+                exit_close()
             if i.type == pygame.MOUSEBUTTONDOWN:
-                if i.button == 1:
+                if i.button == 1 or i.button == 3:
                     mouse_pos = pygame.mouse.get_pos()
-                    if not buttonstart.rect.collidepoint(mouse_pos) and back_ground_menu_rect.collidepoint(mouse_pos):
-                        back_ground_menu = pygame.transform.flip(back_ground_menu, True, False)
-                        pygame.display.update(back_ground_menu_rect)
+                    touch_obj = pygame.Rect(mouse_pos[0], mouse_pos[1], 1, 1).collidelist(objects)
+                    if touch_obj == -1 and back_ground_rect.collidepoint(mouse_pos):
+                        if i.button == 1:
+                            back_ground_menu = pygame.transform.flip(back_ground_menu, True, False)
+                        else:
+                            back_ground_menu = pygame.transform.flip(back_ground_menu, False, True)
+                        pygame.display.update(back_ground_rect)
         for elem in objects:
             elem.process("")
             pygame.display.update(elem.rect)
@@ -147,51 +248,63 @@ def mainmenu(text_but=''):
 
     objects.remove(buttonstart)
     del buttonstart
+    objects.remove(exitt)
+    del exitt
+    objects.remove(options)
+    del options
     text_sprites.remove(title)
     del title
+    objects.remove(volume_but)
+    del volume_but
+    text_sprites.remove(yrov)
+    del yrov
+    if to_option:
+        option()
 
 
 
 def gameplay():
-    global started
+    global to_game
     global let
     global objects
     global sprite_pole
     global dubl_pole
+    global volume_but
+    volume_but = Button(50, 50, 50, HEIGHT * 0.8, (0, 0, 0, 0), "@звук", volume)
     sprite_pole = texts(WIDTH * 0.65, 200, '  '.join(pole), BLACK, bigfont)
-    print(len(text_sprites))
-    q1 = Button(50, 50, X_FIRST, Y_FIRST, RED, "Й", letter_press)
-    w1 = Button(50, 50, X_FIRST + 75, Y_FIRST, RED, "Ц", letter_press)
-    e1 = Button(50, 50, X_FIRST + 150, Y_FIRST, RED, "У", letter_press)
-    r1 = Button(50, 50, X_FIRST + 225, Y_FIRST, RED, "К", letter_press)
-    t1 = Button(50, 50, X_FIRST + 300, Y_FIRST, RED, "Е", letter_press)
-    y1 = Button(50, 50, X_FIRST + 375, Y_FIRST, RED, "Н", letter_press)
-    u1 = Button(50, 50, X_FIRST + 450, Y_FIRST, RED, "Г", letter_press)
-    i1 = Button(50, 50, X_FIRST + 525, Y_FIRST, RED, "Ш", letter_press)
-    o1 = Button(50, 50, X_FIRST + 600, Y_FIRST, RED, "Щ", letter_press)
-    p1 = Button(50, 50, X_FIRST + 675, Y_FIRST, RED, "З", letter_press)
-    p2 = Button(50, 50, X_FIRST + 750, Y_FIRST, RED, "Х", letter_press)
-    p3 = Button(50, 50, X_FIRST + 825, Y_FIRST, RED, "Ъ", letter_press)
-    a1 = Button(50, 50, X_FIRST + 25, Y_FIRST + 100, RED, "Ф", letter_press)
-    s1 = Button(50, 50, X_FIRST + 100, Y_FIRST + 100, RED, "Ы", letter_press)
-    d1 = Button(50, 50, X_FIRST + 175, Y_FIRST + 100, RED, "В", letter_press)
-    f1 = Button(50, 50, X_FIRST + 250, Y_FIRST + 100, RED, "А", letter_press)
-    g1 = Button(50, 50, X_FIRST + 325, Y_FIRST + 100, RED, "П", letter_press)
-    h1 = Button(50, 50, X_FIRST + 400, Y_FIRST + 100, RED, "Р", letter_press)
-    j1 = Button(50, 50, X_FIRST + 475, Y_FIRST + 100, RED, "О", letter_press)
-    k1 = Button(50, 50, X_FIRST + 550, Y_FIRST + 100, RED, "Л", letter_press)
-    l1 = Button(50, 50, X_FIRST + 625, Y_FIRST + 100, RED, "Д", letter_press)
-    l2 = Button(50, 50, X_FIRST + 700, Y_FIRST + 100, RED, "Ж", letter_press)
-    l3 = Button(50, 50, X_FIRST + 775, Y_FIRST + 100, RED, "Э", letter_press)
-    z1 = Button(50, 50, X_FIRST + 50, Y_FIRST + 200, RED, "Я", letter_press)
-    x1 = Button(50, 50, X_FIRST + 125, Y_FIRST + 200, RED, "Ч", letter_press)
-    c1 = Button(50, 50, X_FIRST + 200, Y_FIRST + 200, RED, "С", letter_press)
-    v1 = Button(50, 50, X_FIRST + 275, Y_FIRST + 200, RED, "М", letter_press)
-    b1 = Button(50, 50, X_FIRST + 350, Y_FIRST + 200, RED, "И", letter_press)
-    n1 = Button(50, 50, X_FIRST + 425, Y_FIRST + 200, RED, "Т", letter_press)
-    m1 = Button(50, 50, X_FIRST + 500, Y_FIRST + 200, RED, "Ь", letter_press)
-    m2 = Button(50, 50, X_FIRST + 575, Y_FIRST + 200, RED, "Б", letter_press)
-    m3 = Button(50, 50, X_FIRST + 650, Y_FIRST + 200, RED, "Ю", letter_press)
+    yrov = texts(WIDTH * 0.5, HEIGHT * 0.07, f"{level} уровень", BLACK, bigfont)
+    q1 = Button(50, 50, X_FIRST, Y_FIRST, WHITE, "Й", letter_press)
+    w1 = Button(50, 50, X_FIRST + 75, Y_FIRST, WHITE, "Ц", letter_press)
+    e1 = Button(50, 50, X_FIRST + 150, Y_FIRST, WHITE, "У", letter_press)
+    r1 = Button(50, 50, X_FIRST + 225, Y_FIRST, WHITE, "К", letter_press)
+    t1 = Button(50, 50, X_FIRST + 300, Y_FIRST, WHITE, "Е", letter_press)
+    y1 = Button(50, 50, X_FIRST + 375, Y_FIRST, WHITE, "Н", letter_press)
+    u1 = Button(50, 50, X_FIRST + 450, Y_FIRST, WHITE, "Г", letter_press)
+    i1 = Button(50, 50, X_FIRST + 525, Y_FIRST, WHITE, "Ш", letter_press)
+    o1 = Button(50, 50, X_FIRST + 600, Y_FIRST, WHITE, "Щ", letter_press)
+    p1 = Button(50, 50, X_FIRST + 675, Y_FIRST, WHITE, "З", letter_press)
+    p2 = Button(50, 50, X_FIRST + 750, Y_FIRST, WHITE, "Х", letter_press)
+    p3 = Button(50, 50, X_FIRST + 825, Y_FIRST, WHITE, "Ъ", letter_press)
+    a1 = Button(50, 50, X_FIRST + 25, Y_FIRST + 100, WHITE, "Ф", letter_press)
+    s1 = Button(50, 50, X_FIRST + 100, Y_FIRST + 100, WHITE, "Ы", letter_press)
+    d1 = Button(50, 50, X_FIRST + 175, Y_FIRST + 100, WHITE, "В", letter_press)
+    f1 = Button(50, 50, X_FIRST + 250, Y_FIRST + 100, WHITE, "А", letter_press)
+    g1 = Button(50, 50, X_FIRST + 325, Y_FIRST + 100, WHITE, "П", letter_press)
+    h1 = Button(50, 50, X_FIRST + 400, Y_FIRST + 100, WHITE, "Р", letter_press)
+    j1 = Button(50, 50, X_FIRST + 475, Y_FIRST + 100, WHITE, "О", letter_press)
+    k1 = Button(50, 50, X_FIRST + 550, Y_FIRST + 100, WHITE, "Л", letter_press)
+    l1 = Button(50, 50, X_FIRST + 625, Y_FIRST + 100, WHITE, "Д", letter_press)
+    l2 = Button(50, 50, X_FIRST + 700, Y_FIRST + 100, WHITE, "Ж", letter_press)
+    l3 = Button(50, 50, X_FIRST + 775, Y_FIRST + 100, WHITE, "Э", letter_press)
+    z1 = Button(50, 50, X_FIRST + 50, Y_FIRST + 200, WHITE, "Я", letter_press)
+    x1 = Button(50, 50, X_FIRST + 125, Y_FIRST + 200, WHITE, "Ч", letter_press)
+    c1 = Button(50, 50, X_FIRST + 200, Y_FIRST + 200, WHITE, "С", letter_press)
+    v1 = Button(50, 50, X_FIRST + 275, Y_FIRST + 200, WHITE, "М", letter_press)
+    b1 = Button(50, 50, X_FIRST + 350, Y_FIRST + 200, WHITE, "И", letter_press)
+    n1 = Button(50, 50, X_FIRST + 425, Y_FIRST + 200, WHITE, "Т", letter_press)
+    m1 = Button(50, 50, X_FIRST + 500, Y_FIRST + 200, WHITE, "Ь", letter_press)
+    m2 = Button(50, 50, X_FIRST + 575, Y_FIRST + 200, WHITE, "Б", letter_press)
+    m3 = Button(50, 50, X_FIRST + 650, Y_FIRST + 200, WHITE, "Ю", letter_press)
     while not win and not gameover:
         window.fill((255, 222, 90))
         window.blit(dubl, main_char_rect)
@@ -200,18 +313,21 @@ def gameplay():
             elem.process(elem.text_s.lower())
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
-                sys.exit()
-
+                exit_close()
         for elem in text_sprites:
             elem.output()
         pygame.display.flip()
         clock.tick(FPS)
     objects = []
     del q1, w1, e1, r1, t1, y1, u1, i1, o1, p1, p2, p3, a1, s1, d1, f1, g1, h1, j1, k1, l1, l2, l3, z1, x1, c1, v1, b1, n1, m1, m2, m3
+    text_sprites.remove(yrov)
+    del yrov
+
 
 # ОПРЕДЕЛЕНИЕ КЛАССОВ (шаблоны, по которым будут созданы спрайты)
 class Button(pygame.sprite.Sprite):
     def __init__(self, width, height, x, y, color, text_s="Button", func=None):
+        global sprite_gr
         super().__init__()
         self.x = x
         self.y = y
@@ -219,14 +335,21 @@ class Button(pygame.sprite.Sprite):
         self.height = height
         self.color = color
         self.func = func
-        self.surface = pygame.Surface((self.width, self.height))
+        self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.text_s = text_s
-        self.text = font.render(self.text_s, True, (20, 20, 20))
+        if self.text_s[0] == '@':
+            if text_s == "@звук":
+                sprite_gr = [pygame.transform.scale(i, (self.width, self.height)) for i in sprite_gr]
+                self.text = sprite_gr[1 - VOLUME]
+                self.fillcolors = {"normal": self.color, "hover": self.color, "pressed": self.color}
+        else:
+            self.text = font.render(self.text_s, True, (20, 20, 20))
+            self.fillcolors = {"normal": self.color, "hover": (102, 102, 102), "pressed": (51, 51, 51)}
         self.press = False
         objects.append(self)
     def process(self, text_but):
-        self.fillcolors = {"normal": self.color, "hover": (102, 102, 102), "pressed": (51, 51, 51)}
+        self.fillcolors["normal"] = self.color
         pos = pygame.mouse.get_pos()
         touch = pygame.mouse.get_pressed()[0]
         self.surface.fill(self.fillcolors["normal"])
@@ -237,7 +360,12 @@ class Button(pygame.sprite.Sprite):
                 self.press = True
             elif self.press:
                 if len(self.text_s) == 1:
-                    self.color = GREEN
+                    if self.text_s.lower() in secret:
+                        self.color = GREEN
+                        self.fillcolors["hover"] = GREEN
+                    else:
+                        self.color = RED
+                        self.fillcolors["hover"] = RED
                 self.func(text_but)
                 self.press = False
         else:
@@ -264,17 +392,24 @@ class texts(pygame.sprite.Sprite):
         pygame.display.update(self.rect)
 
 # ИНИЦИАЛИЗАЦИЯ
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
+info = pygame.display.Info()
+WIDTH, HEIGHT = info.current_w - 100, info.current_h - 100
 window = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("виселица")
-font = pygame.font.Font(None, 30)
+pygame.display.set_caption("ВИСЕЛИЦА.ультра")
+font = pygame.font.Font(resource_path(r"fonts\arial.ttf"), 30)
 bigfont = pygame.font.Font(None, 75)
 clock = pygame.time.Clock()
-
+user_data = open(resource_path(r'texts\user'), mode="r+", encoding="utf-8")
+user_data.seek(0)
 
 
 # СКАЧИВАНИЕ ФАЙЛОВ
 spisok = open(resource_path('texts/russian_nouns.txt'), encoding='utf-8').readlines()
+easy = open(resource_path(r"texts\easy"), encoding='utf-8').readlines()
+normal = open(resource_path(r"texts\normal"), encoding='utf-8').readlines()
+hard = open(resource_path(r'texts\hardcore'), encoding='utf-8').readlines()
 main_char = [pygame.Surface((500, 500), pygame.SRCALPHA),
         pygame.image.load(resource_path(r"images\виселица2.png")),
         pygame.image.load(resource_path(r"images\виселица3.png")),
@@ -286,10 +421,13 @@ main_char = [pygame.Surface((500, 500), pygame.SRCALPHA),
         pygame.image.load(resource_path(r"images\виселица9.png")),
         pygame.image.load(resource_path(r'images\виселица10.png'))]
 main_char_rect = main_char[0].get_rect(topleft=(-100, -50))
-
+sprite_gr = [pygame.image.load(resource_path(r'images\громкость.png')), pygame.image.load(resource_path(r"images\громкость_зачеркнт.png"))]
 dubl = pygame.image.load(resource_path(r'images\виселица11.png'))
-back_ground_menu = pygame.transform.scale(pygame.image.load(resource_path(r"images\заднийфон.jpg")).convert(), (WIDTH, HEIGHT))
-back_ground_menu_rect = back_ground_menu.get_rect(topleft=(0, 0))
+back_ground_menu = pygame.transform.scale(pygame.image.load(resource_path(r"images\главное_меню.png")).convert(), (WIDTH, HEIGHT))
+back_ground_option = pygame.transform.scale(pygame.image.load(resource_path(r'images\правли2.png')).convert(),\
+                                                              (WIDTH, HEIGHT))
+back_ground_rect = back_ground_menu.get_rect(topleft=(0, 0))
+music_of_main_menu = resource_path(r'music\главное_меню.mp3')
 
 # ИНИЦИАЛИЗАЦИЯ 2
 def initil():
@@ -297,19 +435,29 @@ def initil():
     global secret
     global pole
     global set_povt
-    k = random.randint(1, 51302)
-    secret = spisok[k][:-1] # случайно сгенерированное слово
-    while len(secret) > 7 or len(secret) < 4 or "ё" in secret:
-        print(secret)
-        k = random.randint(1, 51302)
-        secret = spisok[k][:-1]
+    if level >= 4:
+        k = random.randint(0, 51302)
+        secret = spisok[k][:-1] # случайно сгенерированное слово
+        while len(secret) > 7 or len(secret) < 4 or "ё" in secret:
+            k = random.randint(1, 51302)
+            secret = spisok[k][:-1]
+    elif level == 1:
+        k = random.randint(0, 24)
+        secret = easy[k][:-1]
+    elif level == 2:
+        k = random.randint(0, 18)
+        secret = normal[k][:-1]
+    elif level == 3:
+        k = random.randint(0, 14)
+        secret = hard[k][:-1]
     pole = [SIMV] * len(secret)
     set_povt = set()
-    print(secret + " <=")
+    #print(secret + " <=")
 
 
 # ЗАПУСК
 def main(text_but=''):
+
     opred()
     initil()
     mainmenu()

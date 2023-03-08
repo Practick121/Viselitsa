@@ -18,11 +18,23 @@ a = Analysis(
     (r'images/виселица9.png', 'images'),
     (r'images/виселица10.png', 'images'),
     (r'images/виселица11.png', 'images'),
-    (r'images/заднийфон.jpg', 'images'),
+    (r'images/громкость.png', 'images'),
+    (r'images/громкость_зачеркнт.png', 'images'),
+    (r'images/главное_меню.png', 'images'),
     (r'images/победа.jpg', 'images'),
     (r'images/поражение.jpg', 'images'),
     (r'fonts/arial.ttf', 'fonts'),
-    (r"texts/russian_nouns.txt", "texts")],
+    (r'texts/russian_nouns.txt', "texts"),
+    (r'images/правли2.png', 'images'),
+    (r'music/буква_неугадана.mp3', 'music'),
+    (r'music/главное_меню.mp3', 'music'),
+    (r'music/победа.mp3', 'music'),
+    (r'music/поражение2.mp3', 'music'),
+    (r'music/угадал_букву.mp3', 'music'),
+    (r'texts/easy', 'texts'),
+    (r'texts/normal', 'texts'),
+    (r'texts/hardcore', 'texts'),
+    (r'texts/user', 'texts')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -33,7 +45,6 @@ a = Analysis(
     cipher=block_cipher,
     noarchive=False,
 )
-
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
@@ -43,7 +54,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='ВИСЕЛИЦА',
+    name='Viselitsa',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -56,4 +67,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=['C:\\Users\\Dany\\python_c++\\виселица\\иконка.ico'],
 )
