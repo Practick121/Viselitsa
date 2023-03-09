@@ -18,7 +18,6 @@ GREEN = (0, 128, 0)
 YELLOW = (255, 255, 0)
 X_FIRST = 100
 Y_FIRST = 400
-VOLUME = 1
 FPS = 30
 SIMV = "_" # то как будет показываться неугаданный символ
 
@@ -27,6 +26,9 @@ SIMV = "_" # то как будет показываться неугаданн�
 
 
 def exit_close(but=''):
+    global user_data
+    user_data.seek(0)
+    user_data.write(str(level) + '\n' + str(coins) + "\n" + str(VOLUME))
     user_data.close()
     sys.exit()
 
@@ -52,9 +54,7 @@ def opred():
     gameover = False
     let = ''
     number_of_costum = 0
-    level = int(user_data.readline()[0])
-    coins = int(user_data.readline())
-    user_data.seek(0)
+
 
 # ОПРЕДЕЛЕНИЕ ГЛОБАЛЬНЫХ ФУНКЦИЙ
 def start(text_but):
@@ -91,27 +91,27 @@ def final(final):
     global level
     global user_data
     global coins
+    pygame.time.delay(500)
     pygame.mixer.quit()
     pygame.mixer.init()
     pygame.mixer.music.set_volume(VOLUME)
     restart = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.65, (102, 102, 102), "главное меню", main)
     if final == 1:
-        final_text = texts(WIDTH / 2, HEIGHT * 0.3, f"Уровень {level} пройден! \n  \n  + {level * 462} сошиал кредитс", RED, bigfont)
+        final_text = texts(WIDTH / 2, HEIGHT * 0.3, f"Уровень {level} пройден! \n  \n  + {level * 462} сошиал кредиц", RED, bigfont)
         coins += level * 462
-        oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images\победа.jpg')), (WIDTH, HEIGHT))
+        oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images\победа3.png')), (WIDTH * 2.5, HEIGHT))
         pygame.mixer.music.load(resource_path(r'music\победа.mp3'))
         level += 1
-        user_data.write(str(level))
-        user_data.write("\n")
-        user_data.write(str(coins))
-        user_data.seek(0)
     else:
-        oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images\поражение.jpg')), (WIDTH, HEIGHT))
+        oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images\поражение3.png.')), (WIDTH, HEIGHT + 400))
         pygame.mixer.music.load(resource_path(r'music\поражение2.mp3'))
         final_text = texts(WIDTH / 2, HEIGHT * 0.3, "Правильное слово - " + secret, RED, bigfont)
     pygame.mixer.music.play()
     while 1:
-        window.blit(oboi, (0, 0))
+        if final == 1:
+            window.blit(oboi, (-WIDTH + 100, 0))
+        else:
+            window.blit(oboi, (0, -200))
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
                 exit_close()
@@ -136,7 +136,7 @@ def option():
     info = "ПРАВИЛА"
     rulestext = r"""Помоги себе набрать социального статуса!
     
-    Решай головоломки и получайте кредиты! 
+    Решай головоломки и получай кредиты! 
     
     Каждый раз уровень будет повышаться.
     
@@ -214,6 +214,7 @@ def mainmenu(text_but=''):
     global exitt
     pygame.mixer.music.load(music_of_main_menu)
     pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(VOLUME)
     title = texts(WIDTH / 2, HEIGHT / 4, "ВИСЕЛИЦА 2Д", PURPLE, pygame.font.Font(None, 100))
     buttonstart = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.5, WHITE, "НАЧАТЬ", start)
     options = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.6, BLUE, "ПРАВИЛА", go_option)
@@ -273,38 +274,38 @@ def gameplay():
     volume_but = Button(50, 50, 50, HEIGHT * 0.8, (0, 0, 0, 0), "@звук", volume)
     sprite_pole = texts(WIDTH * 0.65, 200, '  '.join(pole), BLACK, bigfont)
     yrov = texts(WIDTH * 0.5, HEIGHT * 0.07, f"{level} уровень", BLACK, bigfont)
-    q1 = Button(50, 50, X_FIRST, Y_FIRST, WHITE, "Й", letter_press)
-    w1 = Button(50, 50, X_FIRST + 75, Y_FIRST, WHITE, "Ц", letter_press)
-    e1 = Button(50, 50, X_FIRST + 150, Y_FIRST, WHITE, "У", letter_press)
-    r1 = Button(50, 50, X_FIRST + 225, Y_FIRST, WHITE, "К", letter_press)
-    t1 = Button(50, 50, X_FIRST + 300, Y_FIRST, WHITE, "Е", letter_press)
-    y1 = Button(50, 50, X_FIRST + 375, Y_FIRST, WHITE, "Н", letter_press)
-    u1 = Button(50, 50, X_FIRST + 450, Y_FIRST, WHITE, "Г", letter_press)
-    i1 = Button(50, 50, X_FIRST + 525, Y_FIRST, WHITE, "Ш", letter_press)
-    o1 = Button(50, 50, X_FIRST + 600, Y_FIRST, WHITE, "Щ", letter_press)
-    p1 = Button(50, 50, X_FIRST + 675, Y_FIRST, WHITE, "З", letter_press)
-    p2 = Button(50, 50, X_FIRST + 750, Y_FIRST, WHITE, "Х", letter_press)
-    p3 = Button(50, 50, X_FIRST + 825, Y_FIRST, WHITE, "Ъ", letter_press)
-    a1 = Button(50, 50, X_FIRST + 25, Y_FIRST + 100, WHITE, "Ф", letter_press)
-    s1 = Button(50, 50, X_FIRST + 100, Y_FIRST + 100, WHITE, "Ы", letter_press)
-    d1 = Button(50, 50, X_FIRST + 175, Y_FIRST + 100, WHITE, "В", letter_press)
-    f1 = Button(50, 50, X_FIRST + 250, Y_FIRST + 100, WHITE, "А", letter_press)
-    g1 = Button(50, 50, X_FIRST + 325, Y_FIRST + 100, WHITE, "П", letter_press)
-    h1 = Button(50, 50, X_FIRST + 400, Y_FIRST + 100, WHITE, "Р", letter_press)
-    j1 = Button(50, 50, X_FIRST + 475, Y_FIRST + 100, WHITE, "О", letter_press)
-    k1 = Button(50, 50, X_FIRST + 550, Y_FIRST + 100, WHITE, "Л", letter_press)
-    l1 = Button(50, 50, X_FIRST + 625, Y_FIRST + 100, WHITE, "Д", letter_press)
-    l2 = Button(50, 50, X_FIRST + 700, Y_FIRST + 100, WHITE, "Ж", letter_press)
-    l3 = Button(50, 50, X_FIRST + 775, Y_FIRST + 100, WHITE, "Э", letter_press)
-    z1 = Button(50, 50, X_FIRST + 50, Y_FIRST + 200, WHITE, "Я", letter_press)
-    x1 = Button(50, 50, X_FIRST + 125, Y_FIRST + 200, WHITE, "Ч", letter_press)
-    c1 = Button(50, 50, X_FIRST + 200, Y_FIRST + 200, WHITE, "С", letter_press)
-    v1 = Button(50, 50, X_FIRST + 275, Y_FIRST + 200, WHITE, "М", letter_press)
-    b1 = Button(50, 50, X_FIRST + 350, Y_FIRST + 200, WHITE, "И", letter_press)
-    n1 = Button(50, 50, X_FIRST + 425, Y_FIRST + 200, WHITE, "Т", letter_press)
-    m1 = Button(50, 50, X_FIRST + 500, Y_FIRST + 200, WHITE, "Ь", letter_press)
-    m2 = Button(50, 50, X_FIRST + 575, Y_FIRST + 200, WHITE, "Б", letter_press)
-    m3 = Button(50, 50, X_FIRST + 650, Y_FIRST + 200, WHITE, "Ю", letter_press)
+    q1 = Button(SIZE, SIZE, X_FIRST, Y_FIRST, WHITE, "Й", letter_press)
+    w1 = Button(SIZE, SIZE, X_FIRST + 1 * INTERV, Y_FIRST, WHITE, "Ц", letter_press)
+    e1 = Button(SIZE, SIZE, X_FIRST + 2 * INTERV, Y_FIRST, WHITE, "У", letter_press)
+    r1 = Button(SIZE, SIZE, X_FIRST + 3 * INTERV, Y_FIRST, WHITE, "К", letter_press)
+    t1 = Button(SIZE, SIZE, X_FIRST + 4 * INTERV, Y_FIRST, WHITE, "Е", letter_press)
+    y1 = Button(SIZE, SIZE, X_FIRST + 5 * INTERV, Y_FIRST, WHITE, "Н", letter_press)
+    u1 = Button(SIZE, SIZE, X_FIRST + 6 * INTERV, Y_FIRST, WHITE, "Г", letter_press)
+    i1 = Button(SIZE, SIZE, X_FIRST + 7 * INTERV, Y_FIRST, WHITE, "Ш", letter_press)
+    o1 = Button(SIZE, SIZE, X_FIRST + 8 * INTERV, Y_FIRST, WHITE, "Щ", letter_press)
+    p1 = Button(SIZE, SIZE, X_FIRST + 9 * INTERV, Y_FIRST, WHITE, "З", letter_press)
+    p2 = Button(SIZE, SIZE, X_FIRST + 10 * INTERV, Y_FIRST, WHITE, "Х", letter_press)
+    p3 = Button(SIZE, SIZE, X_FIRST + 11 * INTERV, Y_FIRST, WHITE, "Ъ", letter_press)
+    a1 = Button(SIZE, SIZE, X_FIRST + 25 + 0 * INTERV, Y_FIRST + 100, WHITE, "Ф", letter_press)
+    s1 = Button(SIZE, SIZE, X_FIRST + 25 + 1 * INTERV, Y_FIRST + 100, WHITE, "Ы", letter_press)
+    d1 = Button(SIZE, SIZE, X_FIRST + 25 + 2 * INTERV, Y_FIRST + 100, WHITE, "В", letter_press)
+    f1 = Button(SIZE, SIZE, X_FIRST + 25 + 3 * INTERV, Y_FIRST + 100, WHITE, "А", letter_press)
+    g1 = Button(SIZE, SIZE, X_FIRST + 25 + 4 * INTERV, Y_FIRST + 100, WHITE, "П", letter_press)
+    h1 = Button(SIZE, SIZE, X_FIRST + 25 + 5 * INTERV, Y_FIRST + 100, WHITE, "Р", letter_press)
+    j1 = Button(SIZE, SIZE, X_FIRST + 25 + 6 * INTERV, Y_FIRST + 100, WHITE, "О", letter_press)
+    k1 = Button(SIZE, SIZE, X_FIRST + 25 + 7 * INTERV, Y_FIRST + 100, WHITE, "Л", letter_press)
+    l1 = Button(SIZE, SIZE, X_FIRST + 25 + 8 * INTERV, Y_FIRST + 100, WHITE, "Д", letter_press)
+    l2 = Button(SIZE, SIZE, X_FIRST + 25 + 9 * INTERV, Y_FIRST + 100, WHITE, "Ж", letter_press)
+    l3 = Button(SIZE, SIZE, X_FIRST + 25 + 10 * INTERV, Y_FIRST + 100, WHITE, "Э", letter_press)
+    z1 = Button(SIZE, SIZE, X_FIRST + 50 + 1 * INTERV, Y_FIRST + 200, WHITE, "Я", letter_press)
+    x1 = Button(SIZE, SIZE, X_FIRST + 50 + 2 * INTERV, Y_FIRST + 200, WHITE, "Ч", letter_press)
+    c1 = Button(SIZE, SIZE, X_FIRST + 50 + 3 * INTERV, Y_FIRST + 200, WHITE, "С", letter_press)
+    v1 = Button(SIZE, SIZE, X_FIRST + 50 + 4 * INTERV, Y_FIRST + 200, WHITE, "М", letter_press)
+    b1 = Button(SIZE, SIZE, X_FIRST + 50 + 5 * INTERV, Y_FIRST + 200, WHITE, "И", letter_press)
+    n1 = Button(SIZE, SIZE, X_FIRST + 50 + 6 * INTERV, Y_FIRST + 200, WHITE, "Т", letter_press)
+    m1 = Button(SIZE, SIZE, X_FIRST + 50 + 7 * INTERV, Y_FIRST + 200, WHITE, "Ь", letter_press)
+    m2 = Button(SIZE, SIZE, X_FIRST + 50 + 8 * INTERV, Y_FIRST + 200, WHITE, "Б", letter_press)
+    m3 = Button(SIZE, SIZE, X_FIRST + 50 + 9 * INTERV, Y_FIRST + 200, WHITE, "Ю", letter_press)
     while not win and not gameover:
         window.fill((255, 222, 90))
         window.blit(dubl, main_char_rect)
@@ -395,15 +396,28 @@ class texts(pygame.sprite.Sprite):
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
 info = pygame.display.Info()
-WIDTH, HEIGHT = info.current_w - 100, info.current_h - 100
+WIDTH, HEIGHT = info.current_w, info.current_h - 50
+INTERV = (WIDTH - X_FIRST) / 14
+SIZE = INTERV / 3 * 2
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("ВИСЕЛИЦА.ультра")
 font = pygame.font.Font(resource_path(r"fonts\arial.ttf"), 30)
 bigfont = pygame.font.Font(None, 75)
 clock = pygame.time.Clock()
-user_data = open(resource_path(r'texts\user'), mode="r+", encoding="utf-8")
-user_data.seek(0)
-
+try:
+    user_data = open("user_Viselitsa", mode="r+")
+    user_data.seek(0)
+    level = int(user_data.readline())
+    coins = int(user_data.readline())
+    VOLUME = int(user_data.readline())
+except Exception:
+    print("Не получилось")
+    user_data = open("user_Viselitsa", mode="w+")
+    user_data.write("1" + "\n" + "0" + "\n" + "1")
+    user_data.seek(0)
+    level = 1
+    coins = 0
+    VOLUME = 1
 
 # СКАЧИВАНИЕ ФАЙЛОВ
 spisok = open(resource_path('texts/russian_nouns.txt'), encoding='utf-8').readlines()
@@ -445,7 +459,7 @@ def initil():
         k = random.randint(0, 24)
         secret = easy[k][:-1]
     elif level == 2:
-        k = random.randint(0, 18)
+        k = random.randint(0, 17)
         secret = normal[k][:-1]
     elif level == 3:
         k = random.randint(0, 14)
