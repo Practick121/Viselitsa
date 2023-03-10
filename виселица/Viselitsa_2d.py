@@ -18,7 +18,7 @@ FPS = 30 # задержка
 SIMV = "_" # то как будет показываться неугаданный символ
 
 
-def exit_close(but=''): # функция срабатывает при нажатии на кресстик или кнопку выход
+def exit_close(): # функция срабатывает при нажатии на кресстик или кнопку выход
     global user_data
     user_data.seek(0)
     user_data.write(str(level) + '\n' + str(coins) + "\n" + str(VOLUME))
@@ -50,13 +50,13 @@ def opred():
 
 
 # ОПРЕДЕЛЕНИЕ ГЛОБАЛЬНЫХ ФУНКЦИЙ
-def start(text_but): # функция, вызывающаяся кнопкой старт
+def start(): # функция, вызывающаяся кнопкой старт
     global to_game
     to_game = True
 
 
 
-def volume(text_but=''): # функция, вызывающаяся при нажатии кнопки VOLUME
+def volume(): # функция, вызывающаяся при нажатии кнопки VOLUME
     global volume_but
     global sprite_gr
     global VOLUME
@@ -85,76 +85,76 @@ def final(final): # после того, как пользователь уга�
     global net
     global level
     global user_data
-    global coins
+    global coins # глобализируем переменные, чтобы функция могла их изменять
     pygame.time.delay(500)
     pygame.mixer.quit()
     pygame.mixer.init() # небольшая задержка и простое удаление всех воспроизводимых звуков
     pygame.mixer.music.set_volume(VOLUME)
     restart = Button(200, 50, WIDTH / 2 - 100, HEIGHT * 0.65, (102, 102, 102), "главное меню", main) #создание кнопки перезапуска
-    if final == 1:
+    if final == 1: # если пользователь победил
         final_text = texts(WIDTH / 2, HEIGHT * 0.3, f"Уровень {level} пройден! \n  \n  + {level * 462} сошиал кредиц", RED, bigfont)
         coins += level * 462
-        oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images/победа3.png')), (WIDTH * 2.5, HEIGHT))
-        pygame.mixer.music.load(resource_path(r'music/победа.mp3'))
+        oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images/победа3.png')), (WIDTH * 2.5, HEIGHT)) #скачиваем и растягиваем изображение победы
+        pygame.mixer.music.load(resource_path(r'music/победа.mp3')) # загрузка победной музыки
         level += 1
-    else:
+    else: # если пользователь проиграл
         oboi = pygame.transform.scale(pygame.image.load(resource_path(r'images/поражение3.png')), (WIDTH, HEIGHT + 400))
         pygame.mixer.music.load(resource_path(r'music/поражение2.mp3'))
         final_text = texts(WIDTH / 2, HEIGHT * 0.3, "Правильное слово - " + secret, RED, bigfont)
-    pygame.mixer.music.play()
-    while 1:
+    pygame.mixer.music.play() # запуск музыки
+    while 1: # основной цикл комнаты
         if final == 1:
             window.blit(oboi, (-WIDTH + 100, 0))
         else:
             window.blit(oboi, (0, -200))
-        for i in pygame.event.get():
-            if i.type == pygame.QUIT:
+        for i in pygame.event.get(): # цикл обработки событий
+            if i.type == pygame.QUIT: # если пользователь нажал на крестик
                 exit_close()
-        final_text.output()
-        restart.process('')
-        pygame.display.flip()
+        final_text.output() # использовние написанного мною метода вывода текстового спрайта на экран
+        restart.process('') # использование написанного мною метода для обработки событий кнопкой и вывода ее на экран
+        pygame.display.flip() # обновление экрана
 
 
-def back_to(text_but=''):
+def back_to(): # переход от правил к главному меню (нужна именно функция, так как использовать ее будет кнопка)
     global to_option
     to_option = False
 
 
-def go_option(text_but=''):
+def go_option(): # переход к правилам
     global to_option
     to_option = True
 
 
-def option():
+def option(): # комната с правилами
     global bac
     global to_option
     global volume_but
     volume_but = Button(50, 50, 50, HEIGHT * 0.8, (0, 0, 0, 0), "@звук", volume)
     bac = Button(200, 50, 100, HEIGHT * 0.9, RED, "назад", back_to)
     info = "ПРАВИЛА"
-    rulestext = r"""Помоги себе набрать социального статуса!
+    rulestext = """Помоги себе набрать социального статуса! 
     
     Решай головоломки и получай кредиты! 
     
     Каждый раз уровень будет повышаться.
     
-    На каждый уровень дается 10 попыток."""
+    На каждый уровень дается 10 попыток.""" #текст правил для вывода на экран
     tit = texts(WIDTH / 2, HEIGHT * 0.2, info, (51, 51, 51), bigfont)
     rules = texts(WIDTH / 2, HEIGHT * 0.65, rulestext, (120, 120, 120), pygame.font.Font(None, 50))
     window.blit(back_ground_option, back_ground_rect)
-    pygame.display.flip()
-    while to_option:
+    pygame.display.flip() # создание всех спрайтов и установление обоев для этой комнаты
+    while to_option: # пользователь находится в комнате, пока не нажмет на кнопку, которая изменит переменную to_option
         window.blit(back_ground_option, (0, 0))
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
                 exit_close()
         for elem in objects:
-            elem.process('')
-        for ele in text_sprites:
+            elem.process() 
+        for ele in text_sprites: # 2 цикла перебирают все спрайты и выполняют их методы
             ele.output()
 
         pygame.display.flip()
-        clock.tick(FPS)
+        clock.tick(FPS) # задержка, чтобы программа не выполняла цикл излишне быстро, чтобы компьютер не тратил ресурсы
     objects.remove(bac)
     del bac
     objects.remove(volume_but)
@@ -162,11 +162,11 @@ def option():
     text_sprites.remove(rules)
     del rules
     text_sprites.remove(tit)
-    del tit
-    mainmenu('')
+    del tit # после окончания цикла удаляются все спрайты на этой комнате(их предварительно нужно убрать из списков objects и text_sprites)
+    mainmenu() # переход в главное меню
 
 
-def letter_press(let):
+def letter_press(let): # вызывается при нажатии при какую-либо клавишу класса Button в цикле gameplay
     global set_povt
     global win
     global number_of_costum
@@ -174,30 +174,30 @@ def letter_press(let):
     global pole
     global sprite_pole
     if let in secret and let not in set_povt:
-        for j in poisk(let):
-            pole[j] = let
+        for j in poisk(let): # перебираются все совпадения с нажатой буквой, если они есть
+            pole[j] = let #
         if SIMV not in pole:
-            win = True
+            win = True # победа, если не осталось пропусков
         else:
             sound2 = pygame.mixer.Sound(resource_path(r'music/угадал_букву.mp3'))
             sound2.set_volume(VOLUME)
-            sound2.play()
+            sound2.play() # загрузка и запуск музыки
 
     elif let in set_povt:
-        return
+        return # если буква уже была нажата прежде, то функция просто прекращает работу
     else:
         sound1 = pygame.mixer.Sound(resource_path(r'music/буква_неугадана.mp3'))
         sound1.set_volume(VOLUME)
         sound1.play()
         number_of_costum += 1
         if number_of_costum > 9:
-            gameover = True
-    set_povt.add(let)
+            gameover = True # изменение костюма виселицы и проверка, не повесился ли еще человечек
+    set_povt.add(let) # добавление буквы к уже нажатым буквам
     text_sprites.remove(sprite_pole)
-    sprite_pole = texts(WIDTH * 0.65, 200, '  '.join(pole), BLACK, bigfont)
+    sprite_pole = texts(WIDTH * 0.65, 200, '  '.join(pole), BLACK, bigfont) # замена игрового поля на это же поле, но уже с угаданными буквами
 
 
-def poisk(b):
+def poisk(b): # функция poisk возвращает список индексов совпадений по букве b
     otvet = []
     for i in range(len(secret)):
         if secret[i] == b:
@@ -231,10 +231,10 @@ def mainmenu(text_but=''):
             if i.type == pygame.QUIT:
                 exit_close()
             if i.type == pygame.MOUSEBUTTONDOWN:
-                if i.button == 1 or i.button == 3:
+                if i.button == 1 or i.button == 3: # фишка, добавленная мною еще в самой первой версии просто по приколу
                     mouse_pos = pygame.mouse.get_pos()
                     touch_obj = pygame.Rect(mouse_pos[0], mouse_pos[1], 1, 1).collidelist(objects)
-                    if touch_obj == -1 and back_ground_rect.collidepoint(mouse_pos):
+                    if touch_obj == -1 and back_ground_rect.collidepoint(mouse_pos): #экран вертится, если пользователь нажмет на фон
                         if i.button == 1:
                             back_ground_menu = pygame.transform.flip(back_ground_menu, True, False)
                         else:
@@ -275,7 +275,7 @@ def gameplay():
     volume_but = Button(50, 50, 50, HEIGHT * 0.8, (0, 0, 0, 0), "@звук", volume)
     sprite_pole = texts(WIDTH * 0.65, 200, '  '.join(pole), BLACK, bigfont)
     yrov = texts(WIDTH * 0.5, HEIGHT * 0.1, f"{level} уровень", BLACK, bigfont)
-    q1 = Button(SIZE, SIZE, X_FIRST, Y_FIRST, WHITE, "Й", letter_press)
+    q1 = Button(SIZE, SIZE, X_FIRST, Y_FIRST, WHITE, "Й", letter_press) # создание всех кнопок, относительно первой
     w1 = Button(SIZE, SIZE, X_FIRST + 1 * INTERV, Y_FIRST, WHITE, "Ц", letter_press)
     e1 = Button(SIZE, SIZE, X_FIRST + 2 * INTERV, Y_FIRST, WHITE, "У", letter_press)
     r1 = Button(SIZE, SIZE, X_FIRST + 3 * INTERV, Y_FIRST, WHITE, "К", letter_press)
@@ -309,17 +309,17 @@ def gameplay():
     m3 = Button(SIZE, SIZE, X_FIRST + 50 + 9 * INTERV, Y_FIRST + 2 * HEIGHT / 8, WHITE, "Ю", letter_press)
     while not win and not gameover:
         window.fill((255, 222, 90))
-        window.blit(dubl, main_char_rect)
-        window.blit(main_char[number_of_costum], main_char_rect)
+        window.blit(dubl, main_char_rect) # отображение полупрозрачной версии виселицы
+        window.blit(main_char[number_of_costum], main_char_rect) # отображается виселица с нужным костюмом
         for elem in objects:
-            elem.process(elem.text_s.lower())
+            elem.process(elem.text_s.lower()) # так как все кнопки здесь имеют одну функцию - letter_press, то в качестве аргумента передается название буквы
         for i in pygame.event.get():
             if i.type == pygame.QUIT:
                 exit_close()
         for elem in text_sprites:
             elem.output()
         pygame.display.flip()
-        clock.tick(FPS + 10)
+        clock.tick(FPS)
     objects = []
     del q1, w1, e1, r1, t1, y1, u1, i1, o1, p1, p2, p3, a1, s1, d1, f1, g1, h1, j1, k1, l1, l2, l3, z1, x1, c1, v1, b1, n1, m1, m2, m3
     text_sprites.remove(yrov)
@@ -327,9 +327,10 @@ def gameplay():
 
 
 # ОПРЕДЕЛЕНИЕ КЛАССОВ (шаблоны, по которым будут созданы спрайты)
-class Button(pygame.sprite.Sprite):
+class Button(): # класс всех кнопок в этой программе
 
-    def __init__(self, width, height, x, y, color, text_s="Button", func=None):
+    def __init__(self, width, height, x, y, color, text_s="Button", func=None): # конструктор класса, который принимает размеры и расположение левого правого угла
+        # кнопки,ее текст, цвет и функция при нажатии
         global sprite_gr
         super().__init__()
         self.x = x
@@ -340,8 +341,8 @@ class Button(pygame.sprite.Sprite):
         self.func = func
         self.surface = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.text_s = text_s
-        if self.text_s[0] == '@':
+        self.text_s = text_s #сохранение всех переданных аргументов, а также первичное создание кнопки как поверхности
+        if self.text_s[0] == '@': # отдельный случай для кнопок, хранящих не текст, а изображение
             if text_s == "@звук":
                 sprite_gr = [pygame.transform.scale(i, (self.width, self.height)) for i in sprite_gr]
                 self.text = sprite_gr[1 - VOLUME]
@@ -349,15 +350,18 @@ class Button(pygame.sprite.Sprite):
         else:
             self.text = font.render(self.text_s, True, (20, 20, 20))
             self.fillcolors = {"normal": self.color, "hover": (102, 102, 102), "pressed": (51, 51, 51)}
+            # определение всех цветов кнопки при разных обстоятельствах
         self.press = False
         objects.append(self)
-    def process(self, text_but):
+
+
+    def process(self, text_but=''): # метод, вызывающий функцию кнопки при соблюдении всех условий
         self.fillcolors["normal"] = self.color
         pos = pygame.mouse.get_pos()
-        touch = pygame.mouse.get_pressed()[0]
-        self.surface.fill(self.fillcolors["normal"])
+        touch = pygame.mouse.get_pressed()[0] # True, если лкм нажата
+        self.surface.fill(self.fillcolors["normal"])  # установка обычного цвета, пока кнопки не коснулись или не нажали
         if self.rect.collidepoint(pos):
-            self.surface.fill(self.fillcolors["hover"])
+            self.surface.fill(self.fillcolors["hover"])# если на кнопку навели мышь, но не нажали
             if touch:
                 self.surface.fill(self.fillcolors["pressed"])
                 self.press = True
@@ -369,19 +373,22 @@ class Button(pygame.sprite.Sprite):
                     else:
                         self.color = RED
                         self.fillcolors["hover"] = RED
-                self.func(text_but)
+                if len(self.text_s) == 1:
+                    self.func(text_but) # функцияя кнопки срабатывает, если пользовтель отжал лкм на этой кнопке
+                else:
+                    self.func()
                 self.press = False
         else:
             self.press = False
         self.surface.blit(self.text, (self.rect.width / 2 - self.text.get_rect().width / 2,\
                                       self.rect.height / 2 - self.text.get_rect().height / 2))
-        window.blit(self.surface, self.rect)
+        window.blit(self.surface, self.rect) # отображение кнопки на экране
 
 
 
-class texts(pygame.sprite.Sprite):
+class texts():
 
-    def __init__(self, x, y, text, color, font):
+    def __init__(self, x, y, text, color, font): # конструктор класса, принимающий расположение центра текста, его цвет, текст и шрифт
         pygame.sprite.Sprite.__init__(self)
         self.font = font
         self.text = text
@@ -391,19 +398,20 @@ class texts(pygame.sprite.Sprite):
         self.rect.center = (x, y - self.rect.height / 2)
         text_sprites.append(self)
 
-    def output(self):
+    def output(self): # вывод текста на экран
         window.blit(self.image, self.rect)
         pygame.display.update(self.rect)
 
 
 
 
-# ИНИЦИАЛИЗАЦИЯ 2
+# ИНИЦИАЛИЗАЦИЯ
 def initil():
     global k
     global secret
     global pole
     global set_povt
+    # определение уровня игрока и генерирование нужного слова
     if level >= 4:
         k = random.randint(0, 51302)
         secret = spisok[k][:-1] # случайно сгенерированное слово
@@ -424,8 +432,8 @@ def initil():
     #print(secret + " <=")
 
 
-# ЗАПУСК
-def main(text_but=''):
+
+def main(): #функция, определяющая движение всей игры
 
     opred()
     initil()
@@ -435,7 +443,7 @@ def main(text_but=''):
 
 
 if __name__ == '__main__':
-    # ИНИЦИАЛИЗАЦИЯ
+    # ИНИЦИАЛИЗАЦИЯ 2
     os.environ['SDL_VIDEO_CENTERED'] = '1'
     pygame.init()
     info = pygame.display.Info()
@@ -447,7 +455,7 @@ if __name__ == '__main__':
     font = pygame.font.Font(resource_path(r"fonts/arial.ttf"), 30)
     bigfont = pygame.font.Font(None, 75)
     clock = pygame.time.Clock()
-    try:
+    try: # создание файла с данными о пользовтеле при первичном запуске программы
         user_data = open("user_Viselitsa", mode="r+")
         user_data.seek(0)
         level = int(user_data.readline())
@@ -489,4 +497,4 @@ if __name__ == '__main__':
     music_of_main_menu = resource_path(r'music/главное_меню.mp3')
 
 
-    main()
+    main() # ЗАПУСК
